@@ -8,7 +8,7 @@ function App() {
   return (
     <>
      <UserContextProvider>
-      <h1>Dopademics</h1>
+      <h1 className=" text-8xl text-center m-10">Dopademics</h1>
       <Login/>
       <Profile/>
      </UserContextProvider>
