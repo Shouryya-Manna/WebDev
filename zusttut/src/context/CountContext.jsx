@@ -4,7 +4,7 @@ import {create} from 'zustand';
 
 const countStore = (set)=>({
     count: 0,
-    increment: ()=> {
+    increment: ()=>{
         set((state)=>({count: state.count+1}))
     },
     decrement: ()=> set((state)=>({count:state.count-1}))
