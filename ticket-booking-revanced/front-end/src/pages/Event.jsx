@@ -11,16 +11,15 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useMovieTicketMutations } from "@/api/mutations";
+import { toast } from "sonner";
 
 const Event = () => {
-
-  const {eventMutation} = useMovieTicketMutations();
+  const { eventMutation } = useMovieTicketMutations();
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventVenue, setEventVenue] = useState("");
 
-
-   function handleEventName(e) {
+  function handleEventName(e) {
     setEventName(e.target.value);
   }
 
@@ -32,17 +31,31 @@ const Event = () => {
     setEventVenue(e.target.value);
   }
 
-    function handleSubmit() {
-    eventMutation.mutate({
-      event_name: eventName,
-      event_date: eventDate,
-      event_venue: eventVenue,
-    });
+  function handleSubmit() {
+    eventMutation.mutate(
+      {
+        event_name: eventName,
+        event_date: eventDate,
+        event_venue: eventVenue,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Event Created", {
+            description: "Your event has been added successfully.",
+          });
+        },
+        onError: (err) => {
+          toast.error("Failed to create event", {
+            description: err.message || "Something went wrong.",
+          });
+        },
+      }
+    );
   }
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className=" flex flex-col justify-center items-center bg-slate-300 m-20 p-28 rounded-3xl shadow-2xl mw-1/3 min-w-52 ">
+      <div className=" flex flex-col justify-center items-center bg-slate-300 m-20 p-28 rounded-3xl shadow-2xl min-w-52 ">
         <Card className=" w-64 mb-11">
           <CardHeader>
             <CardTitle>Generate Event</CardTitle>
@@ -53,13 +66,13 @@ const Event = () => {
 
           <CardContent>
             <Label htmlFor="event-name">Name</Label>
-            <Input className="my-2" type="text" onChange={handleEventName}/>
+            <Input className="my-2" type="text" onChange={handleEventName} />
 
             <Label htmlFor="event-date">Date</Label>
             <Input className="my-2" type="date" onChange={handleEventDate} />
 
             <Label htmlFor="event-venue">Venue</Label>
-            <Input className="my-2" type="text" onChange={handleEventVenue}/>
+            <Input className="my-2" type="text" onChange={handleEventVenue} />
           </CardContent>
         </Card>
         <Button

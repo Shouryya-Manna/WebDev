@@ -3,6 +3,7 @@ import Navbar from "./pages/Navbar";
 import Ticket from "./pages/Ticket";
 import Event from "./pages/Event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
 function App() {
   const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router}></RouterProvider>
       </QueryClientProvider>
+      <Toaster/>
     </>
   );
 }

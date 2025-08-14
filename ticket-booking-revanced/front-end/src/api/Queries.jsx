@@ -3,9 +3,9 @@ import { fetchMovieInfo} from "./Api";
 
 export function useMovieTicketQueries() {
 
-  const event = useQuery({
+  const events = useQuery({
     queryKey: ["events"],
     queryFn: fetchMovieInfo,
   });
-  return { event };
+  return { events };
 }

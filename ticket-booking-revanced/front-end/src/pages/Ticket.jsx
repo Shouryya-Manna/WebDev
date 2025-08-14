@@ -8,36 +8,61 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useMovieTicketMutations } from "@/api/mutations";
+import { useMovieTicketQueries } from "@/api/Queries";
+
+import { toast } from "sonner";
 
 const Ticket = () => {
+  const { events } = useMovieTicketQueries();
+  const { ticketMutation } = useMovieTicketMutations();
+  const [selectedEventId, setSelectedEventId] = useState("");
+  const [userName, setUserName] = useState("");
+  const [userAge, setUserAge] = useState("");
 
-  const {eventMutation} = useMovieTicketMutations();
-  const [eventName, setEventName] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [eventVenue, setEventVenue] = useState("");
-
-
-   function handleEventName(e) {
-    setEventName(e.target.value);
+  function handleEvent(e) {
+    setSelectedEventId(e);
   }
 
-  function handleEventDate(e) {
-    setEventDate(e.target.value);
+  function handleUserName(e) {
+    setUserName(e.target.value);
   }
 
-  function handleEventVenue(e) {
-    setEventVenue(e.target.value);
+  function handleUserAge(e) {
+    setUserAge(e.target.value);
   }
 
-    function handleSubmit() {
-    eventMutation.mutate({
-      event_name: eventName,
-      event_date: eventDate,
-      event_venue: eventVenue,
-    });
+  function handleSubmit() {
+    ticketMutation.mutate(
+      {
+        event_id: selectedEventId,
+        user_name: userName,
+        user_age: Number(userAge),
+      },
+      {
+        onSuccess: () => {
+          toast.success("Ticket Created", {
+            description: `Ticket for ${userName} booked successfully`,
+          });
+        },
+        onError: (err) => {
+          toast.error("Failed to create ticket", {
+            description: err.message || "Something went wrong.",
+          });
+        },
+      }
+    );
   }
 
   return (
@@ -47,19 +72,32 @@ const Ticket = () => {
           <CardHeader>
             <CardTitle>Generate Ticket</CardTitle>
             <CardDescription>
-             Choose the event and fill the name and age
+              Choose the event and fill the name and age
             </CardDescription>
           </CardHeader>
 
           <CardContent>
-            <Label htmlFor="event-name">Name</Label>
-            <Input className="my-2" type="text" onChange={handleEventName}/>
+            <Label htmlFor="event-name">Events</Label>
+            <Select onValueChange={handleEvent}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a event" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {events.data?.map((data) => (
+                    <SelectItem key={data.event_id} value={data.event_id}>
+                      {data.event_name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
-            <Label htmlFor="event-date">Date</Label>
-            <Input className="my-2" type="date" onChange={handleEventDate} />
+            <Label htmlFor="username">Name</Label>
+            <Input className="my-2" type="text" onChange={handleUserName} />
 
-            <Label htmlFor="event-venue">Venue</Label>
-            <Input className="my-2" type="text" onChange={handleEventVenue}/>
+            <Label htmlFor="event-venue">Age</Label>
+            <Input className="my-2" type="text" onChange={handleUserAge} />
           </CardContent>
         </Card>
         <Button

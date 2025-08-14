@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { createMovieInfo, createTicketInfo } from "./Api";
 
+
 export function useMovieTicketMutations() {
 
   const eventMutation = useMutation({
@@ -18,6 +19,9 @@ export function useMovieTicketMutations() {
     mutationFn: createTicketInfo,
     onSuccess: () => {
       console.log("Ticket Created Successfully");
+    },
+    onError: (err) => {
+      console.log("Error Creating Event", err);
     },
   });
 
