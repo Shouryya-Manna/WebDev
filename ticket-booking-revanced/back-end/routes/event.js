@@ -7,4 +7,6 @@ const { handleGenerateEvent, handleGetAllEvents } = require("../controllers/even
 router.post("/events", handleGenerateEvent);
 router.get("/events", handleGetAllEvents);
 
+
+
 module.exports = router;

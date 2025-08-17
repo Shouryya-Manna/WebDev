@@ -13,6 +13,13 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema } from "@/schemas/Schema";
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import {
   Form,
@@ -24,10 +31,10 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 
-import { Calendar } from "@/components/ui/calendar";
-
 const Event = () => {
   const { eventMutation } = useMovieTicketMutations();
+  const [open, setOpen] = React.useState(false);
+  const [date, setDate] = React.useState(undefined);
 
   const form = useForm({
     resolver: zodResolver(eventSchema),
@@ -45,6 +52,7 @@ const Event = () => {
           description: "Your event has been added successfully.",
         });
         form.reset();
+        setDate(undefined);
       },
       onError: (err) => {
         toast.error("Failed to create event", {
@@ -57,7 +65,7 @@ const Event = () => {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-col justify-center items-center bg-slate-300 m-20 p-10 rounded-3xl shadow-2xl min-w-52">
-        <Card className="w-80 mb-6">
+        <Card className="w-[400px] mb-6">
           <CardHeader>
             <CardTitle>Generate Event</CardTitle>
             <CardDescription>
@@ -96,15 +104,41 @@ const Event = () => {
                   name="event_date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="event-date">Date</FormLabel>
+                      <FormLabel className="mr-10" htmlFor="event-date">
+                        Date
+                      </FormLabel>
                       <FormControl>
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={(date) => field.onChange(date)}
-                          className="rounded-lg border"
-                          {...field}
-                        />
+                        <Popover
+                          className="w-auto overflow-hidden p-0 mt-2 rounded-xl shadow-lg"
+                          open={open}
+                          onOpenChange={setOpen}
+                        >
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              id="date"
+                              className="w-48 justify-between font-normal"
+                            >
+                              {date ? date.toLocaleDateString() : "Select date"}
+                              <ChevronDownIcon />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-auto overflow-hidden p-0"
+                            align="start"
+                          >
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              captionLayout="dropdown"
+                              onSelect={(date) => {
+                                field.onChange(date);
+                                setDate(date);
+                                setOpen(false);
+                              }}
+                            />
+                          </PopoverContent>
+                        </Popover>
                       </FormControl>
                       <FormDescription />
                       <FormMessage />

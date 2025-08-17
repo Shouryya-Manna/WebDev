@@ -32,6 +32,9 @@ async function handleGenerateTicket(req, res) {
 }
 
 
-async function handleGetTicket(req, res) {}
+async function handleGetAllTicket(req, res) {
+  const allTickets = await TICKET.find();
+  return res.json(allTickets);
+}
 
-module.exports = { handleGenerateTicket, handleGetTicket };
+module.exports = { handleGenerateTicket, handleGetAllTicket };
