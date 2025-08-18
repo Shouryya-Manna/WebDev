@@ -45,7 +45,7 @@ const Ticket = () => {
     defaultValues: {
       event_id: "",
       user_name: "",
-      user_age: 0,
+      user_age: undefined,
     },
   });
 
@@ -148,6 +148,7 @@ const Ticket = () => {
                         <Input
                           type="number"
                           placeholder="Enter age"
+                          value={field.value ?? ""}
                           {...field}
                         />
                       </FormControl>
