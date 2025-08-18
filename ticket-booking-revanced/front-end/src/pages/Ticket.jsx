@@ -31,7 +31,7 @@ import { useMovieTicketMutations } from "@/api/mutations";
 import { useMovieTicketQueries, useShowAllTicketsQueries } from "@/api/Queries";
 import { toast } from "sonner";
 import TableSchema from "@/schemas/TableSchema";
-import columns from "../schemas/Schema";
+import ticketTableColumns from "../schemas/Schema";
 
 const Ticket = () => {
   const { events } = useMovieTicketQueries();
@@ -44,8 +44,8 @@ const Ticket = () => {
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       event_id: "",
-      name: "",
-      age: 0,
+      user_name: "",
+      user_age: 0,
     },
   });
 
@@ -53,9 +53,10 @@ const Ticket = () => {
     ticketMutation.mutate(values, {
       onSuccess: () => {
         toast.success("Ticket Created", {
-          description: `Ticket for ${values.name} booked successfully`,
+          description: `Ticket for ${values.user_name} booked successfully`,
         });
         form.reset();
+        tickets.refetch();
       },
       onError: (err) => {
         toast.error("Failed to create ticket", {
@@ -69,9 +70,7 @@ const Ticket = () => {
     tickets.data?.filter(
       (ticket) => String(ticket.event_id) === String(selectedEventId)
     ) || [];
-  console.log("All tickets:", tickets.data);
-  console.log("Filtered tickets:", filteredTickets);
-  console.log("Selected event:", selectedEventId);
+
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-col justify-center items-center bg-slate-300 m-10 p-10 rounded-3xl shadow-2xl">
@@ -123,7 +122,7 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="user_name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
@@ -141,7 +140,7 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="age"
+                  name="user_age"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Age</FormLabel>
@@ -167,9 +166,8 @@ const Ticket = () => {
             </Form>
           </CardContent>
         </Card>
-        
       </div>
-      <TableSchema columns={columns} data={filteredTickets} />
+      <TableSchema columns={ticketTableColumns} data={filteredTickets} />
     </div>
   );
 };

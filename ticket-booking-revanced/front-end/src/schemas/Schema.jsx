@@ -13,13 +13,13 @@ export const eventSchema = z.object({
 
 export const ticketSchema = z.object({
   event_id: z.string().min(1, "Event must be selected"),
-  name: z.string().min(4, "The minimum length of a username must be 4 characters"),
-  age: z.coerce.number().min(18, "The minimum age must be 18"),
+  user_name: z.string().min(4, "The minimum length of a username must be 4 characters"),
+  user_age: z.coerce.number().min(18, "The minimum age must be 18"),
 
 });
 
 
-export const columns = [
+export const ticketTableColumns = [
   {
     accessorKey: "ticket_id",
     header: "Ticket ID",
@@ -39,4 +39,4 @@ export const columns = [
 ];
 
 
-export default columns;
+export default ticketTableColumns;
