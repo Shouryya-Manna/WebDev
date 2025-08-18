@@ -1,28 +1,22 @@
 import React, { useState } from "react";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventSchema, ticketSchema } from "@/schemas/Schema";
-
+import { ticketSchema } from "@/schemas/Schema";
 import {
   Form,
   FormControl,
@@ -32,50 +26,56 @@ import {
   FormMessage,
   FormLabel,
 } from "@/components/ui/form";
-
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useMovieTicketMutations } from "@/api/mutations";
-import { useMovieTicketQueries } from "@/api/Queries";
-
+import { useMovieTicketQueries, useShowAllTicketsQueries } from "@/api/Queries";
 import { toast } from "sonner";
+import TableSchema from "@/schemas/TableSchema";
+import columns from "../schemas/Schema";
 
 const Ticket = () => {
   const { events } = useMovieTicketQueries();
   const { ticketMutation } = useMovieTicketMutations();
+  const { tickets } = useShowAllTicketsQueries();
+
+  const [selectedEventId, setSelectedEventId] = useState("");
 
   const form = useForm({
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       event_id: "",
-      user_name: "",
-      user_age: 0,
+      name: "",
+      age: 0,
     },
   });
 
   const onSubmit = (values) => {
-    ticketMutation.mutate(
-      values,
-
-      {
-        onSuccess: () => {
-          toast.success("Ticket Created", {
-            description: `Ticket for ${values.user_name} booked successfully`,
-          });
-        },
-        onError: (err) => {
-          toast.error("Failed to create ticket", {
-            description: err.message || "Something went wrong.",
-          });
-        },
-      }
-    );
+    ticketMutation.mutate(values, {
+      onSuccess: () => {
+        toast.success("Ticket Created", {
+          description: `Ticket for ${values.name} booked successfully`,
+        });
+        form.reset();
+      },
+      onError: (err) => {
+        toast.error("Failed to create ticket", {
+          description: err.message || "Something went wrong.",
+        });
+      },
+    });
   };
 
+  const filteredTickets =
+    tickets.data?.filter(
+      (ticket) => String(ticket.event_id) === String(selectedEventId)
+    ) || [];
+  console.log("All tickets:", tickets.data);
+  console.log("Filtered tickets:", filteredTickets);
+  console.log("Selected event:", selectedEventId);
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className=" flex flex-col justify-center items-center bg-slate-300 m-20 p-28 rounded-3xl shadow-2xl mw-1/3 min-w-52 ">
-        <Card className=" w-64 mb-11">
+      <div className="flex flex-col justify-center items-center bg-slate-300 m-10 p-10 rounded-3xl shadow-2xl">
+        <Card>
           <CardHeader>
             <CardTitle>Generate Ticket</CardTitle>
             <CardDescription>
@@ -94,27 +94,28 @@ const Ticket = () => {
                   name="event_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="event">Event</FormLabel>
+                      <FormLabel>Event</FormLabel>
                       <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
+                        onValueChange={(value) => {
+                          form.setValue("event_id", value);
+                          setSelectedEventId(value);
+                        }}
+                        value={form.watch("event_id")}
                       >
                         <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select a event" />
+                          <SelectValue placeholder="Select an event" />
                         </SelectTrigger>
                         <SelectContent>
                           {events.data?.map((event) => (
                             <SelectItem
                               key={event.event_id}
-                              value={event.event_id}
+                              value={String(event.event_id)}
                             >
                               {event.event_name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-
-                      <FormDescription />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -122,19 +123,17 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="user_name"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="username">Name</FormLabel>
+                      <FormLabel>Name</FormLabel>
                       <FormControl>
                         <Input
-                          id="username"
                           type="text"
                           placeholder="Enter username"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -142,19 +141,17 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="user_age"
+                  name="age"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="userage">Age</FormLabel>
+                      <FormLabel>Age</FormLabel>
                       <FormControl>
                         <Input
-                          id="userage"
                           type="number"
                           placeholder="Enter age"
                           {...field}
                         />
                       </FormControl>
-                      <FormDescription />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -170,7 +167,9 @@ const Ticket = () => {
             </Form>
           </CardContent>
         </Card>
+        
       </div>
+      <TableSchema columns={columns} data={filteredTickets} />
     </div>
   );
 };
