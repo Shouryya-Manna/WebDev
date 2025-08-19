@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ticketSchema } from "@/schemas/Schema";
+import columns, { ticketSchema } from "@/schemas/Schema";
 import {
   Form,
   FormControl,
@@ -31,7 +31,6 @@ import { useMovieTicketMutations } from "@/api/mutations";
 import { useMovieTicketQueries, useShowAllTicketsQueries } from "@/api/Queries";
 import { toast } from "sonner";
 import TableSchema from "@/schemas/TableSchema";
-import ticketTableColumns from "../schemas/Schema";
 
 const Ticket = () => {
   const { events } = useMovieTicketQueries();
@@ -44,8 +43,8 @@ const Ticket = () => {
     resolver: zodResolver(ticketSchema),
     defaultValues: {
       event_id: "",
-      user_name: "",
-      user_age: undefined,
+      name: "",
+      age: undefined,
     },
   });
 
@@ -53,7 +52,7 @@ const Ticket = () => {
     ticketMutation.mutate(values, {
       onSuccess: () => {
         toast.success("Ticket Created", {
-          description: `Ticket for ${values.user_name} booked successfully`,
+          description: `Ticket for ${values.name} booked successfully`,
         });
         form.reset();
         tickets.refetch();
@@ -122,7 +121,7 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="user_name"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Name</FormLabel>
@@ -140,7 +139,7 @@ const Ticket = () => {
 
                 <FormField
                   control={form.control}
-                  name="user_age"
+                  name="age"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Age</FormLabel>
@@ -168,7 +167,9 @@ const Ticket = () => {
           </CardContent>
         </Card>
       </div>
-      <TableSchema columns={ticketTableColumns} data={filteredTickets} />
+      <div className=" max-w-3xl">
+        <TableSchema columns={columns} data={filteredTickets} />
+      </div>
     </div>
   );
 };
