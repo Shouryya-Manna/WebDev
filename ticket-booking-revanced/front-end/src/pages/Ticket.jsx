@@ -38,7 +38,6 @@ const Ticket = () => {
   const { ticketMutation } = useMovieTicketMutations();
   const { tickets } = useShowAllTicketsQueries();
 
-  const [selectedEventId, setSelectedEventId] = useState("");
 
   const form = useForm({
     resolver: zodResolver(ticketSchema),
@@ -66,10 +65,6 @@ const Ticket = () => {
     });
   };
 
-  const filteredTickets =
-    tickets.data?.filter(
-      (ticket) => String(ticket.event_id) === String(selectedEventId)
-    ) || [];
 
   return (
     <div className="flex flex-col justify-center items-center">
@@ -97,7 +92,6 @@ const Ticket = () => {
                       <Select
                         onValueChange={(value) => {
                           form.setValue("event_id", value);
-                          setSelectedEventId(value);
                         }}
                         value={form.watch("event_id")}
                       >
@@ -168,7 +162,6 @@ const Ticket = () => {
           </CardContent>
         </Card>
       </div>
-      <TableSchema columns={ticketTableColumns} data={filteredTickets} />
     </div>
   );
 };
