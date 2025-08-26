@@ -24,6 +24,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,17 +44,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { useSelectedTicket } from "@/stores/Ticket";
 import { useNavigate } from "react-router-dom";
-import { useThemeStore } from "@/contexts/Theme";
 
-
-
-//Column Definition
-
-
-
+// Column definitions using theme tokens
 const columns = [
   {
     id: "select",
@@ -80,43 +74,38 @@ const columns = [
   {
     accessorKey: "ticket_id",
     header: "Ticket ID",
-    cell: ({ row }) => <div className="">{row.getValue("ticket_id")}</div>,
+    cell: ({ row }) => <div>{row.getValue("ticket_id")}</div>,
   },
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Name
+        <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => <div className="lowercase">{row.getValue("name")}</div>,
   },
   {
     accessorKey: "age",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Age
-          <ArrowUpDown />
-        </Button>
-      );
-    },
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Age
+        <ArrowUpDown />
+      </Button>
+    ),
     cell: ({ row }) => row.getValue("age"),
     sortingFn: "basic",
-    filterFn: (row, columnId, filterValue) => {
-      // filterValue is already number (from input handler)
-      if (filterValue === undefined) return true;
-      return row.getValue(columnId) === filterValue;
-    },
+    filterFn: (row, columnId, filterValue) =>
+      filterValue === undefined
+        ? true
+        : row.getValue(columnId) === filterValue,
   },
   {
     accessorKey: "event",
@@ -139,12 +128,15 @@ const columns = [
               <MoreHorizontal />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            className="bg-popover text-popover-foreground border border-border"
+          >
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {
-                setSelectedTicket(row.original); 
-                navigate("/ticket-details"); // Navigate to new page
+                setSelectedTicket(row.original);
+                navigate("/ticket-details");
               }}
             >
               View
@@ -164,11 +156,10 @@ const TicketsTable = () => {
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
   const { tickets } = useShowAllTicketsQueries();
-  const [filterColumn, setFilterColumn] = useState("name"); // default filter column
-  const filterColumns = ["name", "event", "age"]; // columns available for filtering
+  const [filterColumn, setFilterColumn] = useState("name");
+  const filterColumns = ["name", "event", "age"];
   const [filterValue, setFilterValue] = useState("");
 
-  // Stable data using useMemo, default to empty array
   const data = useMemo(
     () =>
       tickets?.data?.map((item) => ({ ...item, age: Number(item.age) })) ?? [],
@@ -186,105 +177,89 @@ const TicketsTable = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
+    state: { sorting, columnFilters, columnVisibility, rowSelection },
   });
 
- 
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
-      <div className=" max-w-fit ">
-        <div className="flex items-center py-4">
-          <div className="flex gap-2 w-full max-w-sm">
-            <Select
-              value={filterColumn}
-              onValueChange={(value) => {
-                // Reset previous column filter
-                table.getColumn(filterColumn)?.setFilterValue(undefined);
+    <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
+      <div className="w-full max-w-5xl space-y-4">
+        <div className="flex items-center py-4 gap-2">
+          <Select
+            value={filterColumn}
+            onValueChange={(value) => {
+              table.getColumn(filterColumn)?.setFilterValue(undefined);
+              setFilterColumn(value);
+            }}
+          >
+            <SelectTrigger className="w-32 bg-background text-foreground border border-border">
+              <SelectValue placeholder="Select column" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover text-popover-foreground border border-border">
+              {filterColumns.map((col) => (
+                <SelectItem key={col} value={col} className="capitalize">
+                  {col}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-                // Update filter column
-                setFilterColumn(value);
-              }}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Select column" />
-              </SelectTrigger>
-              <SelectContent>
-                {filterColumns.map((col) => (
-                  <SelectItem key={col} value={col} className="capitalize">
-                    {col}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <Input
+            className="bg-background text-foreground border border-border"
+            placeholder={`Filter by ${filterColumn}`}
+            value={filterValue}
+            type={filterColumn === "age" ? "number" : "text"}
+            onChange={(e) => {
+              setFilterValue(e.target.value);
+              const rawValue = e.target.value;
+              const valueToFilter =
+                filterColumn === "age"
+                  ? rawValue === "" ? undefined : Number(rawValue)
+                  : rawValue;
+              table.getColumn(filterColumn)?.setFilterValue(valueToFilter);
+            }}
+          />
 
-            <Input
-              placeholder={`Filter by ${filterColumn}`}
-              value={filterValue}
-              type={filterColumn === "age" ? "number" : "text"}
-              onChange={(e) => {
-                setFilterValue(e.target.value); // keep input as string
-                const rawValue = e.target.value;
-                const valueToFilter =
-                  filterColumn === "age"
-                    ? rawValue === ""
-                      ? undefined
-                      : Number(rawValue) // convert to number for filter
-                    : rawValue;
-
-                table.getColumn(filterColumn)?.setFilterValue(valueToFilter);
-              }}
-            />
-          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent className="bg-popover text-popover-foreground border border-border" align="end">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <div className="overflow-hidden rounded-md border">
-          <Table>
-            <TableHeader>
+
+        <div className="overflow-hidden rounded-md border border-border">
+          <Table className="bg-card">
+            <TableHeader className="bg-muted">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -294,23 +269,18 @@ const TicketsTable = () => {
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
                     No results.
                   </TableCell>
                 </TableRow>
@@ -318,6 +288,7 @@ const TicketsTable = () => {
             </TableBody>
           </Table>
         </div>
+
         <div className="flex items-center justify-between px-2">
           <div className="text-muted-foreground flex-1 text-sm">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
@@ -328,16 +299,12 @@ const TicketsTable = () => {
               <p className="text-sm font-medium">Rows per page</p>
               <Select
                 value={`${table.getState().pagination.pageSize}`}
-                onValueChange={(value) => {
-                  table.setPageSize(Number(value));
-                }}
+                onValueChange={(value) => table.setPageSize(Number(value))}
               >
-                <SelectTrigger className="h-8 w-[70px]">
-                  <SelectValue
-                    placeholder={table.getState().pagination.pageSize}
-                  />
+                <SelectTrigger className="h-8 w-[70px] bg-background text-foreground border border-border">
+                  <SelectValue placeholder={table.getState().pagination.pageSize} />
                 </SelectTrigger>
-                <SelectContent side="top">
+                <SelectContent className="bg-popover text-popover-foreground border border-border" side="top">
                   {[5, 10, 15, 20, 25, 30].map((pageSize) => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
@@ -347,48 +314,27 @@ const TicketsTable = () => {
               </Select>
             </div>
             <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
             </div>
             <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden size-8 lg:flex"
+              <Button variant="outline" size="icon" className="hidden size-8 lg:flex"
                 onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to first page</span>
+                disabled={!table.getCanPreviousPage()}>
                 <ChevronsLeft />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8"
+              <Button variant="outline" size="icon" className="size-8"
                 onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="sr-only">Go to previous page</span>
+                disabled={!table.getCanPreviousPage()}>
                 <ChevronLeft />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="size-8"
+              <Button variant="outline" size="icon" className="size-8"
                 onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to next page</span>
+                disabled={!table.getCanNextPage()}>
                 <ChevronRight />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="hidden size-8 lg:flex"
+              <Button variant="outline" size="icon" className="hidden size-8 lg:flex"
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="sr-only">Go to last page</span>
+                disabled={!table.getCanNextPage()}>
                 <ChevronsRight />
               </Button>
             </div>
