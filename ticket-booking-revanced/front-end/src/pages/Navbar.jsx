@@ -6,8 +6,13 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { Toggle } from "@radix-ui/react-toggle";
+import { Bold, Italic } from "lucide-react";
+import { useThemeStore } from "@/contexts/Theme";
 
 const Navbar = () => {
+  const { theme, toggleTheme } = useThemeStore();
+
   return (
     <div>
       <nav className="bg-gray-900 text-white px-6 py-3 shadow-lg">
@@ -47,6 +52,12 @@ const Navbar = () => {
                     Details
                   </Link>
                 </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <Toggle variant="outline"
+                onClick={toggleTheme} aria-label="Toggle italic">
+                  <Bold className="h-3 w-3" />
+                </Toggle>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>

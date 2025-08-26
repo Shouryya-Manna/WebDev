@@ -46,6 +46,7 @@ import {
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { useSelectedTicket } from "@/stores/Ticket";
 import { useNavigate } from "react-router-dom";
+import { useThemeStore } from "@/contexts/Theme";
 
 
 
@@ -193,8 +194,10 @@ const TicketsTable = () => {
     },
   });
 
+ 
+
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
       <div className=" max-w-fit ">
         <div className="flex items-center py-4">
           <div className="flex gap-2 w-full max-w-sm">
