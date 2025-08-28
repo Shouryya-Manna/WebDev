@@ -1,8 +1,7 @@
 const express = require("express");
+const { handleGenerateEvent, handleGetAllEvents } = require("../controllers/event");
 
 const router = express.Router();
-
-const { handleGenerateEvent, handleGetAllEvents } = require("../controllers/event");
 
 router.post("/events", handleGenerateEvent);
 router.get("/events", handleGetAllEvents);

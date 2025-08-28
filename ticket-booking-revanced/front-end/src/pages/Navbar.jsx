@@ -9,6 +9,7 @@ import {
 import { Toggle } from "@radix-ui/react-toggle";
 import { Bold, Italic } from "lucide-react";
 import { useThemeStore } from "@/contexts/Theme";
+import { Switch } from "@/components/ui/switch";
 
 const Navbar = () => {
   const { theme, toggleTheme } = useThemeStore();
@@ -56,7 +57,7 @@ const Navbar = () => {
               <NavigationMenuItem>
                 <Toggle variant="outline"
                 onClick={toggleTheme} aria-label="Toggle italic">
-                  <Bold className="h-3 w-3" />
+                  <Switch className="" />
                 </Toggle>
               </NavigationMenuItem>
             </NavigationMenuList>
