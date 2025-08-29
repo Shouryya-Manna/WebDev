@@ -16,8 +16,7 @@ const DataTable = () => {
   return (
     <table>
       <thead>
-        {table.getHeaderGroups().map((headerGroup) => {
-          return (
+        {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <th key={header.id} colSpan={header.colSpan}>
@@ -30,8 +29,8 @@ const DataTable = () => {
                 </th>
               ))}
             </tr>
-          );
-        })}
+          )
+        )}
       </thead>
       <tbody>
         {table.getRowModel().rows.map((row) => (
