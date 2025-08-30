@@ -1,14 +1,13 @@
-
-import { useFetchPosts } from "./api/Queries";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/Routes";
 
 function App() {
-  const { data: posts} = useFetchPosts();
   return (
-    <ul>
-      {posts?.map((post) => (
-        <li key={post.id}>{post.title}</li>
-      ))}
-    </ul>
+    <>
+      <RouterProvider router={router}>
+        
+      </RouterProvider>
+    </>
   );
 }
 export default App;
