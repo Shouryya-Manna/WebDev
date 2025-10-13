@@ -43,7 +43,7 @@ export type BlogCardImageProps = {
 BlogCard.Image = function BlogCardImage({ className }: BlogCardImageProps) {
   const { blog } = useBlogCardContext();
   return (
-    <div className={cn() + className}>
+    <div className={cn("",className)}>
       <img
         src={blog.image}
         className="w-full h-full object-fill  rounded-3xl"
