@@ -15,9 +15,9 @@ const usernameSchema = loginSchema.pick({
 type usernameSchemaType = z.infer<typeof usernameSchema>;
 type UsernameFormProps = {
   step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
+  
 };
-export default function UsernameForm({ step, setStep }: UsernameFormProps) {
+export default function UsernameForm({ step }: UsernameFormProps) {
   const firstName = useFormStore((state) => state.firstName);
   const lastName = useFormStore((state) => state.lastName);
   const password = useFormStore((state) => state.password);
@@ -32,29 +32,13 @@ export default function UsernameForm({ step, setStep }: UsernameFormProps) {
   const { setData, resetData } = useFormStore();
   function onSubmit(data: usernameSchemaType) {
     console.log({ ...data, password, confirmPassword });
-    setStep(step + 1);
+
     setData(data);
   }
   return (
     <form id="username" onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
-        <Controller
-          name="firstName"
-          control={form.control}
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="first-name">First name</FieldLabel>
-              <Input
-                {...field}
-                id="first-name"
-                aria-invalid={fieldState.invalid}
-                placeholder="Enter first name"
-                autoComplete="off"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-            </Field>
-          )}
-        />
+        
         <Controller
           name="lastName"
           control={form.control}
